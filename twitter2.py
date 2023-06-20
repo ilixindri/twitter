@@ -11,43 +11,39 @@ except: pip.main(['install', 'requests']); import requests
 
 import pip
 import time
-delay_basic = 3#10 sem headless
+headless = True
+if headless:
+    delay_basic = 3
+else:
+    delay_basic = 10
 try: import selenium
 except: pip.main(['install', 'selenium==4.10.0'])
 from selenium import webdriver
 from selenium.webdriver.edge.service import Service
 from selenium.webdriver.edge.options import Options
-try: import mitmproxy
-except: pip.main(['install', 'mitmproxy'])
-from mitmproxy import options
-from mitmproxy import proxy
-from mitmproxy.proxy.server import ProxyServer
-proxy_options = options.Options()
-server = ProxyServer(proxy_options)
+try: import browsermobproxy
+except: pip.main(['install', 'browsermob-proxy'])
+from browsermobproxy import Server
+path_to_browsermob_proxy = r"C:\Users\Administrator\OneDrive\Downloads\browsermob-proxy-2.1.4-bin\browsermob-proxy-2.1.4\bin\browsermob-proxy.bat"
+server = Server(path_to_browsermob_proxy)
 server.start()
-proxy_address = server.address()
+proxy = server.create_proxy()
 edge_driver_path = r"C:\Users\Administrator\OneDrive\Downloads\edgedriver_win64\msedgedriver.exe"
 edge_executable_path = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 options = Options()
 options.use_chromium = True
 options.add_argument("--headless")
-options.add_argument(f'--proxy-server={proxy_address}')
+options.add_argument(f'--proxy-server={proxy.proxy}')
+options.add_argument("--ignore-ssl-errors=yes")
+options.add_argument("--ignore-certificate-errors")
 options.binary_location = edge_executable_path
 service = Service(edge_driver_path)
 #username = input("Digite o nome de usuário do Twitter: ")
 #password = input("Digite a senha do Twitter: ")
 username = "alexandrogonsan"
-password = "j26cyiLE2XS5ewqV0npO5dxP86qcQvI'"
+password = ""
 driver = webdriver.Edge(service=service, options=options)
-class RequestInterceptor:
-    def request(self, flow):
-        try:
-            csrf_token = flow.request.headers.get('csrf-token')
-            print(f'CSRF Token: {csrf_token}')
-            input()
-        except:
-            None
-server.addons.add(RequestInterceptor())
+proxy.new_har("intercepted_requests", options={'captureHeaders': True, 'captureContent': False})
 driver.get("https://twitter.com/i/flow/login")
 time.sleep(delay_basic)
 username_input = driver.find_element('xpath', '//input[@type="text"]')
@@ -69,10 +65,9 @@ for entry in har['log']['entries']:
     for header in headers:
         if header['name'].lower() == 'x-csrf-token':
             csrf_tokens += [header['value']]
-print(f'CSRF Token: {csrf_tokens}')
-input('ok?')
+csrf_token = csrf_tokens[-1]
 #driver.quit()
-#server.shutdown()
+#server.stop()
 
 
 
@@ -130,7 +125,7 @@ headers = {
 }
 body = {
     "variables": {
-        "tweet_text": "Create by @python script with cookies of selenium",
+        "tweet_text": "Create by @python script with cookies of selenium and csrf-token by browsermob-proxy",
         "dark_request": False,
         "media": {
             "media_entities": [],
@@ -161,7 +156,7 @@ body = {
 #response = requests.post(url, headers=headers, json=body)
 response = session.post(url, headers=headers, json=body)
 print(response.status_code)
-print(response.json())
+#print(response.json())
 
 
 
@@ -180,4 +175,4 @@ print(response.json())
 
 
 driver.quit()
-server.shutdown()
+server.stop()
