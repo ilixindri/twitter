@@ -17,7 +17,7 @@ def __import__(*args, **kwargs):
         for _ in module:
             line = f'import {_}'
             exec(line)
-    finally:
+    except ModuleNotFoundError:
         if version is None:
             for _ in module:
                 pip.main(['install', _])
