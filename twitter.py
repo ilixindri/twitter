@@ -32,7 +32,7 @@ edge_driver_path = r"C:\Users\Administrator\OneDrive\Downloads\edgedriver_win64\
 edge_executable_path = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 options = Options()
 options.use_chromium = True
-options.add_argument("--headless")q
+options.add_argument("--headless")
 options.add_argument(f'--proxy-server={proxy.proxy}')
 options.add_argument("--ignore-ssl-errors=yes")
 options.add_argument("--ignore-certificate-errors")
