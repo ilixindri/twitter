@@ -1,0 +1,3 @@
+[submodule "LibS"]
+	path = LibS
+	url = https://github.com/ilixindri/lib

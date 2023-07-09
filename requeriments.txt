@@ -1,0 +1,7 @@
+pymongo
+python-dotenv
+wget
+msedge-selenium-tools
+urllib3
+selenium==4.4.3
+webdriver_manager
