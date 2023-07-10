@@ -161,3 +161,4 @@ cython_debug/
 
 bmp.log
 server.log
+cookies.pkl
